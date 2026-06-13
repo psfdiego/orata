@@ -1,5 +1,12 @@
 /* ============================================================
-   ORATA — animation engine (GSAP + Lenis)
+   ORATA — animation engine v2 (GSAP + Lenis)
+
+   The "circuit": a single SVG layer over the whole page whose
+   traces are generated at runtime between real DOM anchors —
+   hero chips → stats-card edge dots → every section's kicker
+   dot. Because it measures the DOM, the network stays connected
+   at any viewport size, and pulses travel it end to end.
+
    Content is fully readable with JS disabled; everything here
    only enhances. All motion is gated on prefers-reduced-motion.
    ============================================================ */
@@ -12,11 +19,10 @@
   const hasGSAP = typeof window.gsap !== 'undefined' && typeof window.ScrollTrigger !== 'undefined';
   let lenis = null;
 
-  // If the user enables reduced motion mid-session, reload into static mode
-  // (infinite tweens hold inline styles that CSS alone can't stop).
+  // If the user enables reduced motion mid-session, reload into static mode.
   try {
     reducedMq.addEventListener('change', e => { if (e.matches) location.reload(); });
-  } catch (err) { /* older Safari: addListener — not worth shimming */ }
+  } catch (err) { /* noop */ }
 
   /* ---------- nav chrome (always on) ---------- */
   const nav = document.getElementById('nav');
@@ -77,7 +83,6 @@
   menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => { if (menuOpen) setMenu(false); }));
   addEventListener('keydown', e => { if (e.key === 'Escape' && menuOpen) setMenu(false); });
 
-  // resizing up past the burger breakpoint must not leave the overlay stuck
   const deskMq = matchMedia('(min-width: 881px)');
   try {
     deskMq.addEventListener('change', e => { if (e.matches && menuOpen) setMenu(false); });
@@ -126,13 +131,8 @@
   if (window.SplitText) gsap.registerPlugin(SplitText);
   if (window.MotionPathPlugin) gsap.registerPlugin(MotionPathPlugin);
 
-  if (reduced) {
-    // No motion: leave the document exactly as authored.
-    return;
-  }
+  if (reduced) return; // leave the document exactly as authored
 
-  // Wait for webfonts before splitting text / measuring, so lines
-  // are split against the real metrics (fallback: 1.8s).
   const fontsReady = (document.fonts && document.fonts.ready) || Promise.resolve();
   Promise.race([fontsReady, new Promise(r => setTimeout(r, 1800))]).then(initMotion);
 
@@ -150,7 +150,7 @@
 
   // anchor links route through Lenis; keyboard focus follows the jump
   document.querySelectorAll('a[href^="#"]').forEach(a => {
-    if (a.classList.contains('skip-link')) return; // keep native skip behavior
+    if (a.classList.contains('skip-link')) return;
     a.addEventListener('click', e => {
       const id = a.getAttribute('href');
       if (id.length < 2) return;
@@ -165,32 +165,246 @@
     });
   });
 
-  /* ---------- helpers ---------- */
-  const drawIn = (paths, opts = {}) => {
-    paths.forEach(p => {
-      const len = p.getTotalLength();
-      gsap.set(p, { strokeDasharray: len, strokeDashoffset: len });
+  /* ============================================================
+     CIRCUIT — runtime-routed traces between DOM anchors
+     ============================================================ */
+  const NSVG = 'http://www.w3.org/2000/svg';
+  const circuit = document.createElementNS(NSVG, 'svg');
+  circuit.setAttribute('class', 'circuit');
+  circuit.setAttribute('aria-hidden', 'true');
+  circuit.setAttribute('focusable', 'false');
+  document.body.appendChild(circuit);
+
+  const reg = { tweens: [], triggers: [] };
+
+  function mk(tag, attrs) {
+    const el = document.createElementNS(NSVG, tag);
+    for (const k in attrs) el.setAttribute(k, attrs[k]);
+    return el;
+  }
+
+  // anchor: [selector, side, t?, pad?] → point + outward direction
+  function anchor(spec) {
+    let el = document.querySelector(spec[0]);
+    if (!el) return null;
+    // pinned elements get wrapped in a spacer; measure the spacer instead
+    if (el.parentElement && el.parentElement.classList.contains('pin-spacer')) el = el.parentElement;
+    const r = el.getBoundingClientRect();
+    if (r.width < 1 && r.height < 1) return null;
+    const style = getComputedStyle(el);
+    if (style.display === 'none' || style.visibility === 'hidden') return null;
+    const side = spec[1], t = spec[2] ?? 0.5, pad = spec[3] ?? 6;
+    const x = r.left + window.scrollX, y = r.top + window.scrollY;
+    switch (side) {
+      case 'top':    return { x: x + r.width * t, y: y - pad, dx: 0, dy: -1 };
+      case 'bottom': return { x: x + r.width * t, y: y + r.height + pad, dx: 0, dy: 1 };
+      case 'left':   return { x: x - pad, y: y + r.height * t, dx: -1, dy: 0 };
+      case 'right':  return { x: x + r.width + pad, y: y + r.height * t, dx: 1, dy: 0 };
+    }
+  }
+
+  // orthogonal route with rounded corners between two directed anchors
+  function route(a, b, opt) {
+    const lead = opt.lead ?? 28;
+    const p1 = { x: a.x + a.dx * lead, y: a.y + a.dy * lead };
+    const p2 = { x: b.x + b.dx * lead, y: b.y + b.dy * lead };
+    const pts = [{ x: a.x, y: a.y }, p1];
+    const aV = a.dx === 0, bV = b.dx === 0;
+    if (aV && bV) {
+      const my = opt.midY ?? (p1.y + p2.y) / 2;
+      pts.push({ x: p1.x, y: my }, { x: p2.x, y: my });
+    } else if (aV && !bV) {
+      pts.push({ x: p1.x, y: p2.y });
+    } else if (!aV && bV) {
+      pts.push({ x: p2.x, y: p1.y });
+    } else {
+      const mx = opt.midX ?? (p1.x + p2.x) / 2;
+      pts.push({ x: mx, y: p1.y }, { x: mx, y: p2.y });
+    }
+    pts.push(p2, { x: b.x, y: b.y });
+    return pts;
+  }
+
+  function roundedPath(pts, r = 16) {
+    const P = [];
+    pts.forEach(p => {
+      const q = P[P.length - 1];
+      if (!q || Math.abs(q.x - p.x) > 0.5 || Math.abs(q.y - p.y) > 0.5) P.push({ x: p.x, y: p.y });
     });
-    return gsap.to(paths, {
-      strokeDashoffset: 0,
-      duration: opts.duration ?? 1.4,
-      stagger: opts.stagger ?? 0.1,
-      ease: opts.ease ?? 'power2.inOut',
-      delay: opts.delay ?? 0,
-      scrollTrigger: opts.trigger ? {
-        trigger: opts.trigger, start: opts.start ?? 'top 78%', once: true
-      } : undefined
+    for (let i = P.length - 2; i > 0; i--) {
+      const a = P[i - 1], b = P[i], c = P[i + 1];
+      if ((Math.abs(a.x - b.x) < 0.5 && Math.abs(b.x - c.x) < 0.5) ||
+          (Math.abs(a.y - b.y) < 0.5 && Math.abs(b.y - c.y) < 0.5)) P.splice(i, 1);
+    }
+    if (P.length < 2) return '';
+    let d = `M ${P[0].x.toFixed(1)} ${P[0].y.toFixed(1)}`;
+    for (let i = 1; i < P.length - 1; i++) {
+      const a = P[i - 1], b = P[i], c = P[i + 1];
+      const lin = Math.hypot(b.x - a.x, b.y - a.y), lout = Math.hypot(c.x - b.x, c.y - b.y);
+      const rr = Math.min(r, lin / 2, lout / 2);
+      const ix = b.x - (b.x - a.x) / lin * rr, iy = b.y - (b.y - a.y) / lin * rr;
+      const ox = b.x + (c.x - b.x) / lout * rr, oy = b.y + (c.y - b.y) / lout * rr;
+      d += ` L ${ix.toFixed(1)} ${iy.toFixed(1)} Q ${b.x.toFixed(1)} ${b.y.toFixed(1)} ${ox.toFixed(1)} ${oy.toFixed(1)}`;
+    }
+    d += ` L ${P[P.length - 1].x.toFixed(1)} ${P[P.length - 1].y.toFixed(1)}`;
+    return d;
+  }
+
+  /* The network. Hero traces draw on load; section connectors draw
+     as you scroll (scrubbed); pulses travel while their span is on
+     screen. minW/maxW gate connections per breakpoint. */
+  const CONNS = [
+    // — hero —
+    { color: 'pink', edgeFrom: 'left', to: ['#chip-mega', 'left', 0.5, 6],
+      draw: 'load', ball: 0.45, pulse: { dur: 6, delay: 2.2 } },
+    { color: 'blue', from: ['#chip-user', 'bottom'], to: ['.ed-blue', 'left', 0.5, 5],
+      draw: 'load', ball: 0.22, pulse: { dur: 5, delay: 3.2 }, minW: 921 },
+    { color: 'green', from: ['#chip-folder', 'right'], to: ['.ed-green', 'top', 0.5, 5],
+      draw: 'load', ball: 0.16 },
+    { color: 'pink', from: ['#chip-mega', 'bottom'], to: ['#chip-doc', 'top'],
+      draw: 'load', pulse: { dur: 4.5, delay: 4.6 }, minW: 921 },
+    { color: 'orange', from: ['#chip-chart', 'bottom'], to: ['.ed-orange', 'right', 0.5, 5],
+      draw: 'load', ball: 0.3, pulse: { dur: 5, delay: 5.6 }, minW: 921 },
+    { color: 'purple', from: ['#chip-doc', 'bottom'], to: ['.ed-purple', 'right', 0.5, 5],
+      draw: 'load', minW: 921 },
+    // mobile: megaphone feeds the stats' right dot down the margin
+    { color: 'pink', from: ['#chip-mega', 'bottom', 0.85], to: ['.ed-orange', 'right', 0.5, 5],
+      draw: 'load', pulse: { dur: 5.5, delay: 3 }, maxW: 920 },
+
+    // — section thread —
+    { color: 'purple', from: ['.ed-purple', 'bottom', 0.5, 5], to: ['#kd-recog', 'top', 0.5, 7],
+      draw: 'scrub', ball: 0.55, pulse: { dur: 4 } },
+    { color: 'blue', from: ['#recog-turn', 'bottom', 0.12], to: ['#kd-what', 'top', 0.5, 7],
+      draw: 'scrub', ball: 0.4 },
+    { color: 'green', from: ['#svc-pin', 'bottom', 0.32], to: ['#kd-proof', 'top', 0.5, 7],
+      draw: 'scrub', ball: 0.5, pulse: { dur: 4 } },
+    { color: 'orange', from: ['#proof-card', 'bottom', 0.72], to: ['#kd-reassure', 'top', 0.5, 7],
+      draw: 'scrub', ball: 0.45 },
+    { color: 'lightblue', from: ['#reassure-close', 'bottom', 0.4], to: ['.pn-top', 'top', 0.5, 5],
+      draw: 'scrub', ball: 0.5, pulse: { dur: 4 } },
+    { color: 'purple', from: ['.pn-bottom', 'bottom', 0.5, 5], to: ['#kd-ai', 'top', 0.5, 7],
+      draw: 'scrub', ball: 0.5 },
+    { color: 'pink', from: ['#ask-panel', 'bottom', 0.5], to: ['#kd-talk', 'top', 0.5, 7],
+      draw: 'scrub', ball: 0.5, pulse: { dur: 4 } },
+    { color: 'teal', from: ['#form-card', 'bottom', 0.6], to: ['#logos-eyebrow', 'top', 0.5, 8],
+      draw: 'scrub', ball: 0.5 },
+  ];
+
+  function destroyCircuit() {
+    reg.tweens.forEach(t => { if (t.scrollTrigger) t.scrollTrigger.kill(); t.kill(); });
+    reg.triggers.forEach(t => t.kill());
+    reg.tweens = []; reg.triggers = [];
+    circuit.innerHTML = '';
+  }
+
+  function buildCircuit() {
+    destroyCircuit();
+    const docW = document.documentElement.clientWidth;
+    const docH = document.documentElement.scrollHeight;
+    circuit.setAttribute('viewBox', `0 0 ${docW} ${docH}`);
+    circuit.setAttribute('width', docW);
+    circuit.setAttribute('height', docH);
+    const vw = innerWidth, vh = innerHeight;
+    let loadIdx = 0;
+
+    CONNS.forEach(c => {
+      if (c.minW && vw < c.minW) return;
+      if (c.maxW && vw > c.maxW) return;
+      const b = anchor(c.to);
+      if (!b) return;
+      let a;
+      if (c.edgeFrom === 'left') a = { x: 0, y: b.y, dx: 1, dy: 0 };
+      else a = anchor(c.from);
+      if (!a) return;
+
+      const pts = route(a, b, c);
+      const d = roundedPath(pts, 16);
+      if (!d) return;
+      const path = mk('path', { d, class: `trace t-${c.color}` });
+      circuit.appendChild(path);
+      const len = path.getTotalLength();
+      if (!len) return;
+
+      if (c.ball != null) {
+        const p = path.getPointAtLength(len * c.ball);
+        circuit.appendChild(mk('circle', { cx: p.x.toFixed(1), cy: p.y.toFixed(1), r: 6.5, class: `ball b-${c.color}` }));
+      }
+
+      const ys = pts.map(p => p.y);
+      const minY = Math.min(...ys), maxY = Math.max(...ys);
+
+      gsap.set(path, { strokeDasharray: len, strokeDashoffset: len });
+      if (c.draw === 'load') {
+        reg.tweens.push(gsap.to(path, {
+          strokeDashoffset: 0, duration: 1.5, ease: 'power2.inOut',
+          delay: 0.8 + (loadIdx++) * 0.13
+        }));
+      } else {
+        reg.tweens.push(gsap.to(path, {
+          strokeDashoffset: 0, ease: 'none',
+          scrollTrigger: { start: minY - vh * 0.88, end: Math.max(maxY - vh * 0.42, minY - vh * 0.88 + 120), scrub: 0.6 }
+        }));
+      }
+
+      if (c.pulse && window.MotionPathPlugin) {
+        const dot = mk('circle', { r: 4, class: `pulse p-${c.color}` });
+        circuit.appendChild(dot);
+        const travel = c.pulse.dur;
+        const tl = gsap.timeline({ repeat: -1, repeatDelay: 1.6, delay: c.pulse.delay ?? 1.2, paused: true });
+        tl.set(dot, { opacity: 0 }, 0)
+          .to(dot, { motionPath: { path, align: path, alignOrigin: [0.5, 0.5] }, duration: travel, ease: 'none' }, 0)
+          .to(dot, { opacity: 0.95, duration: 0.4, ease: 'power1.out' }, 0.05)
+          .to(dot, { opacity: 0, duration: 0.4, ease: 'power1.in' }, travel - 0.4);
+        reg.tweens.push(tl);
+        reg.triggers.push(ScrollTrigger.create({
+          start: minY - vh, end: maxY + 120,
+          onToggle: s => s.isActive ? tl.play() : tl.pause()
+        }));
+      }
     });
-  };
+    ScrollTrigger.sort();
+  }
+
+  /* ---------- services: horizontal system rail (pin first — its
+     spacer changes the page height the circuit measures) ---------- */
+  const mm = gsap.matchMedia();
+  mm.add('(min-width: 921px)', () => {
+    const track = document.getElementById('svc-track');
+    const pinEl = document.getElementById('svc-pin');
+    const dist = () => Math.max(0, track.scrollWidth - document.documentElement.clientWidth);
+    const trackTween = gsap.to(track, {
+      x: () => -dist(), ease: 'none',
+      scrollTrigger: {
+        trigger: pinEl, start: 'top top', end: () => '+=' + (dist() + innerHeight * 0.25),
+        scrub: 0.7, pin: true, anticipatePin: 1, invalidateOnRefresh: true,
+        onToggle: s => pinEl.classList.toggle('pinned', s.isActive)
+      }
+    });
+    gsap.utils.toArray('.svc').forEach(card => {
+      gsap.from(card, {
+        y: 46, opacity: 0.15, duration: 0.6, ease: 'power2.out',
+        scrollTrigger: { trigger: card, containerAnimation: trackTween, start: 'left 88%', once: true }
+      });
+    });
+  });
+  mm.add('(max-width: 920px)', () => {
+    gsap.utils.toArray('.svc').forEach(card => {
+      gsap.from(card, {
+        y: 36, opacity: 0, duration: 0.8, ease: 'power3.out',
+        scrollTrigger: { trigger: card, start: 'top 88%', once: true }
+      });
+    });
+  });
+
+  /* Build the circuit BEFORE any from()-style reveal tweens exist:
+     immediateRender would offset the anchors and the traces would
+     land where the un-revealed elements sit, not where they settle. */
+  ScrollTrigger.refresh();
+  buildCircuit();
 
   /* ---------- hero intro ---------- */
-  const heroDecor = document.querySelector(
-    matchMedia('(max-width: 760px)').matches ? '.decor-mobile' : '.decor-desktop'
-  );
-
   const intro = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
-  // headline: split into masked words, restored to clean DOM afterwards
   const h1 = document.getElementById('hero-h1');
   let h1Split = null;
   if (window.SplitText) {
@@ -202,82 +416,27 @@
   } else {
     intro.from(h1, { y: 30, opacity: 0, duration: 1 }, 0.15);
   }
-
-  intro.from('[data-hero]', {
-    y: 26, opacity: 0, duration: 0.9, stagger: 0.14
-  }, 0.65);
-
-  // un-split once settled so window resizes re-wrap text naturally
+  intro.from('[data-hero]', { y: 26, opacity: 0, duration: 0.9, stagger: 0.14 }, 0.65);
   intro.eventCallback('onComplete', () => { if (h1Split) h1Split.revert(); });
 
-  // decor: draw traces, pop chips and balls; keep loops to pause offscreen
+  const chips = gsap.utils.toArray('.hero .chip');
+  intro.from(chips, {
+    scale: 0.6, opacity: 0, y: 14,
+    duration: 0.7, stagger: 0.1, ease: 'back.out(1.7)'
+  }, 0.7);
+
   const heroLoops = [];
-  if (heroDecor) {
-    const traces = [...heroDecor.querySelectorAll('.trace')];
-    traces.forEach(p => {
-      const len = p.getTotalLength();
-      gsap.set(p, { strokeDasharray: len, strokeDashoffset: len });
-    });
-    intro.to(traces, {
-      strokeDashoffset: 0, duration: 1.5, stagger: 0.09, ease: 'power2.inOut'
-    }, 0.5);
-
-    intro.from(heroDecor.querySelectorAll('.ball'), {
-      scale: 0, transformOrigin: '50% 50%', duration: 0.5,
-      stagger: 0.08, ease: 'back.out(2.2)'
-    }, 0.9);
-
-    // NB: these are SVG <g> nodes with a translate() in their transform
-    // attribute — only relative/scale tweens here, absolute y would
-    // clobber the authored position.
-    const chips = heroDecor.querySelectorAll('.chip');
-    intro.from(chips, {
-      scale: 0.6, opacity: 0, transformOrigin: '50% 50%',
-      duration: 0.7, stagger: 0.1, ease: 'back.out(1.7)'
-    }, 0.8);
-
-    // idle float, randomized per chip
-    chips.forEach((chip, i) => {
-      heroLoops.push(gsap.to(chip, {
-        y: i % 2 ? '+=9' : '-=9',
-        duration: 2.6 + i * 0.45,
-        repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 1.6
-      }));
-    });
-
-    // pulses traveling along traces — fade out before looping so the
-    // jump back to the path start is invisible
-    if (window.MotionPathPlugin) {
-      heroDecor.querySelectorAll('.pulse').forEach((dot, i) => {
-        const path = heroDecor.querySelector(dot.dataset.along);
-        if (!path) return;
-        const travel = 5.5 + i * 1.3;
-        const tl = gsap.timeline({ repeat: -1, repeatDelay: 1.4, delay: 2 + i * 1.7 });
-        tl.set(dot, { opacity: 0 }, 0)
-          .to(dot, {
-            motionPath: { path, align: path, alignOrigin: [0.5, 0.5] },
-            duration: travel, ease: 'none'
-          }, 0)
-          .to(dot, { opacity: 0.95, duration: 0.45, ease: 'power1.out' }, 0.05)
-          .to(dot, { opacity: 0, duration: 0.45, ease: 'power1.in' }, travel - 0.45);
-        heroLoops.push(tl);
-      });
-    }
-
-    // gentle parallax on the whole decor layer while scrolling the hero
-    gsap.to(heroDecor, {
-      y: -56, ease: 'none',
-      scrollTrigger: {
-        trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 1.2
-      }
-    });
-
-    // don't burn frames on the idle loops when the hero is offscreen
-    ScrollTrigger.create({
-      trigger: '.hero', start: 'top bottom', end: 'bottom top',
-      onToggle: self => heroLoops.forEach(t => self.isActive ? t.play() : t.pause())
-    });
-  }
+  chips.forEach((chip, i) => {
+    heroLoops.push(gsap.to(chip, {
+      y: i % 2 ? '+=9' : '-=9',
+      duration: 2.6 + i * 0.45,
+      repeat: -1, yoyo: true, ease: 'sine.inOut', delay: 1.7
+    }));
+  });
+  ScrollTrigger.create({
+    trigger: '.hero', start: 'top bottom', end: 'bottom+=400 top',
+    onToggle: s => heroLoops.forEach(t => s.isActive ? t.play() : t.pause())
+  });
 
   /* ---------- generic reveals ---------- */
   gsap.utils.toArray('[data-reveal]').forEach(el => {
@@ -287,23 +446,17 @@
     });
   });
 
-  gsap.utils.toArray('[data-reveal-group]').forEach(group => {
-    gsap.from(group.children, {
-      y: 30, opacity: 0, duration: 0.9, stagger: 0.12, ease: 'power3.out',
-      scrollTrigger: { trigger: group, start: 'top 82%', once: true }
-    });
-  });
-
-  gsap.utils.toArray('[data-reveal-grid]').forEach(grid => {
-    gsap.from(grid.children, {
-      y: 38, opacity: 0, duration: 0.85, ease: 'power3.out',
-      stagger: { each: 0.09, grid: 'auto', from: 'start' },
-      scrollTrigger: { trigger: grid, start: 'top 82%', once: true }
-    });
-  });
-
-  /* ---------- section headline line-reveals ---------- */
+  /* ---------- scrubbed word reveals ---------- */
   if (window.SplitText) {
+    document.querySelectorAll('[data-words]').forEach(el => {
+      const sp = new SplitText(el, { type: 'words' });
+      gsap.fromTo(sp.words, { opacity: 0.14 }, {
+        opacity: 1, stagger: 0.045, ease: 'none',
+        scrollTrigger: { trigger: el, start: 'top 82%', end: 'top 34%', scrub: 0.4 }
+      });
+    });
+
+    /* section headline line-reveals (un-split after playing) */
     gsap.utils.toArray('h2.split-lines').forEach(h => {
       const split = new SplitText(h, { type: 'lines', linesClass: 'sl-line-inner' });
       split.lines.forEach(line => {
@@ -315,20 +468,20 @@
       gsap.from(split.lines, {
         yPercent: 110, duration: 1.1, stagger: 0.09, ease: 'power4.out',
         scrollTrigger: { trigger: h, start: 'top 85%', once: true },
-        onComplete: () => split.revert() // clean DOM → resizes re-wrap fine
+        onComplete: () => split.revert()
       });
     });
   }
 
-  /* ---------- spine: stats → next section ---------- */
-  document.querySelectorAll('.spine-path').forEach(p => {
-    const len = p.getTotalLength();
-    gsap.set(p, { strokeDasharray: len, strokeDashoffset: len });
-    gsap.to(p, {
-      strokeDashoffset: 0, ease: 'none',
-      scrollTrigger: {
-        trigger: p.closest('.spine'), start: 'top 88%', end: 'bottom 55%', scrub: 0.6
-      }
+  /* ---------- how we work: progress line + row lighting ---------- */
+  gsap.fromTo('.how-progress', { scaleY: 0 }, {
+    scaleY: 1, ease: 'none',
+    scrollTrigger: { trigger: '.how-list', start: 'top 72%', end: 'bottom 52%', scrub: 0.5 }
+  });
+  document.querySelectorAll('.how-row').forEach(row => {
+    ScrollTrigger.create({
+      trigger: row, start: 'top 70%', once: true,
+      onEnter: () => row.classList.add('lit')
     });
   });
 
@@ -336,13 +489,18 @@
   ['.how-decor', '.foot-decor'].forEach(sel => {
     const svg = document.querySelector(sel);
     if (!svg) return;
-    drawIn([...svg.querySelectorAll('.trace')], {
-      trigger: svg.closest('section, footer'), duration: 1.6, stagger: 0.2
+    const paths = [...svg.querySelectorAll('.trace')];
+    paths.forEach(p => {
+      const len = p.getTotalLength();
+      gsap.set(p, { strokeDasharray: len, strokeDashoffset: len });
+    });
+    gsap.to(paths, {
+      strokeDashoffset: 0, duration: 1.6, stagger: 0.2, ease: 'power2.inOut',
+      scrollTrigger: { trigger: svg.closest('section, footer'), start: 'top 78%', once: true }
     });
     gsap.from(svg.querySelectorAll('.ball'), {
-      scale: 0, transformOrigin: '50% 50%', duration: 0.5, ease: 'back.out(2)',
-      scrollTrigger: { trigger: svg.closest('section, footer'), start: 'top 78%', once: true },
-      delay: 0.9
+      scale: 0, transformOrigin: '50% 50%', duration: 0.5, ease: 'back.out(2)', delay: 0.9,
+      scrollTrigger: { trigger: svg.closest('section, footer'), start: 'top 78%', once: true }
     });
   });
 
@@ -364,22 +522,34 @@
   });
 
   /* ---------- AI "needs your attention" panel ---------- */
-  const ask = document.querySelector('.ask');
+  const ask = document.getElementById('ask-panel');
   if (ask) {
-    const items = ask.querySelectorAll('.ask-list li');
+    const items = [...ask.querySelectorAll('.ask-list li')];
     const count = ask.querySelector('.ask-count');
     count.textContent = '0';
     const tl = gsap.timeline({
       scrollTrigger: { trigger: ask, start: 'top 80%', once: true }
     });
-    tl.from(items, {
-      x: -18, opacity: 0, duration: 0.55, stagger: 0.16, ease: 'power2.out'
-    }, 0.2);
+    tl.from(items, { x: -18, opacity: 0, duration: 0.55, stagger: 0.16, ease: 'power2.out' }, 0.2);
     const c = { v: 0 };
     tl.to(c, {
       v: parseInt(count.dataset.countTo, 10), duration: 0.8, ease: 'none',
       onUpdate: () => { count.textContent = Math.round(c.v); }
     }, 0.25);
+
+    // idle: cycle a soft highlight through the alerts while on screen
+    const glow = gsap.timeline({ repeat: -1, paused: true, delay: 3 });
+    items.forEach(li => {
+      glow.call(() => {
+        items.forEach(l => l.classList.remove('glow'));
+        li.classList.add('glow');
+      }).to({}, { duration: 2.4 });
+    });
+    glow.call(() => items.forEach(l => l.classList.remove('glow'))).to({}, { duration: 1.6 });
+    ScrollTrigger.create({
+      trigger: ask, start: 'top 95%', end: 'bottom top',
+      onToggle: s => s.isActive ? glow.play() : glow.pause()
+    });
   }
 
   /* ---------- magnetic CTA (fine pointers only) ---------- */
@@ -399,6 +569,12 @@
     });
   }
 
-  ScrollTrigger.refresh();
+  /* ---------- wire it all up ---------- */
+  let rsT = null;
+  addEventListener('resize', () => {
+    clearTimeout(rsT);
+    rsT = setTimeout(() => { ScrollTrigger.refresh(); buildCircuit(); }, 350);
+  }, { passive: true });
+
   } // initMotion
 })();

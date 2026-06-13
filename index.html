@@ -59,98 +59,22 @@
 
 <!-- ============ HERO ============ -->
 <section class="hero" id="top">
-
-  <!-- desktop system decor -->
-  <svg class="hero-decor decor decor-desktop" viewBox="0 0 1440 980" preserveAspectRatio="xMidYMin slice" aria-hidden="true" focusable="false">
-    <!-- faint hairline running through the page -->
-    <path class="trace t-hair" d="M 0 522 H 1440" />
-
-    <!-- pink: top, into the megaphone -->
-    <path class="trace t-pink" id="tr-pink-a" d="M 120 84 H 676" />
-    <path class="trace t-pink" id="tr-pink-b" d="M 700 84 H 1042 Q 1058 84 1058 100 V 102 Q 1058 118 1074 118 H 1086" />
-    <circle class="ball b-pink" cx="688" cy="84" r="7" />
-
-    <!-- blue: out of the user chip, down the left -->
-    <path class="trace t-blue lg-only" id="tr-blue-a" d="M 152 234 V 440" />
-    <path class="trace t-blue lg-only" id="tr-blue-b" d="M 152 464 V 520 Q 152 536 136 536 H 80" />
-    <circle class="ball b-blue lg-only" cx="152" cy="452" r="7" />
-
-    <!-- green: out of the folder, toward the stats -->
-    <path class="trace t-green lg-only" id="tr-green-a" d="M 196 592 H 270" />
-    <path class="trace t-green lg-only" id="tr-green-b" d="M 294 592 H 392 Q 408 592 408 608 V 880 Q 408 896 424 896 H 520" />
-    <circle class="ball b-green lg-only" cx="282" cy="592" r="7" />
-
-    <!-- purple: into the doc chip, then down -->
-    <path class="trace t-purple lg-only" id="tr-purple-a" d="M 940 560 H 1010" />
-    <path class="trace t-purple lg-only" id="tr-purple-b" d="M 1034 560 H 1074 Q 1090 560 1090 576 V 592" />
-    <path class="trace t-purple lg-only" id="tr-purple-c" d="M 1090 664 V 860 Q 1090 876 1074 876 H 920" />
-    <circle class="ball b-purple lg-only" cx="1022" cy="560" r="7" />
-
-    <!-- orange: out of the chart chip, down the right side -->
-    <path class="trace t-orange lg-only" id="tr-orange-b" d="M 1212 424 H 1300 Q 1316 424 1316 440 V 640" />
-    <circle class="ball b-orange lg-only" cx="1316" cy="652" r="7" />
-
-    <!-- traveling pulses -->
-    <circle class="pulse p-pink"   data-along="#tr-pink-a"   r="4" />
-    <circle class="pulse p-green lg-only"  data-along="#tr-green-b"  r="4" />
-    <circle class="pulse p-orange lg-only" data-along="#tr-orange-b" r="4" />
-    <circle class="pulse p-purple lg-only" data-along="#tr-purple-c" r="4" />
-
-    <!-- chips -->
-    <g class="chip chip-blue lg-only" data-depth="0.7" transform="translate(120,170)">
-      <rect class="chip-bg" width="64" height="64" rx="16" />
-      <g class="chip-icon" transform="translate(20,20)">
-        <circle cx="12" cy="8.2" r="3.6" />
-        <path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6" />
-      </g>
-    </g>
-    <g class="chip chip-pink" data-depth="1" transform="translate(1090,86)">
-      <rect class="chip-bg" width="64" height="64" rx="16" />
-      <g class="chip-icon" transform="translate(20,20)">
-        <path d="M4.5 10.5v3.6a1 1 0 0 0 1 1h2.3l4.4 4.2V5.3L7.8 9.5H5.5a1 1 0 0 0-1 1z" />
-        <path d="M15.8 9.2a4.3 4.3 0 0 1 0 6.1" />
-        <path d="M18.4 6.8a7.6 7.6 0 0 1 0 10.9" />
-      </g>
-    </g>
-    <g class="chip chip-green lg-only" data-depth="0.55" transform="translate(132,560)">
-      <rect class="chip-bg" width="64" height="64" rx="16" />
-      <g class="chip-icon" transform="translate(20,20)">
-        <path d="M3.5 8a2 2 0 0 1 2-2h4.2l2 2.2h7.3a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H5.5a2 2 0 0 1-2-2V8z" />
-      </g>
-    </g>
-    <g class="chip chip-orange lg-only" data-depth="0.85" transform="translate(1148,392)">
-      <rect class="chip-bg" width="64" height="64" rx="16" />
-      <g class="chip-icon" transform="translate(20,20)">
-        <path d="M5.5 19.5v-5.4" /><path d="M10.3 19.5V7.5" /><path d="M15 19.5v-8.4" /><path d="M19.7 19.5V11" />
-      </g>
-    </g>
-    <g class="chip chip-purple lg-only" data-depth="0.65" transform="translate(1058,596)">
-      <rect class="chip-bg" width="64" height="64" rx="16" />
-      <g class="chip-icon" transform="translate(20,20)">
-        <path d="M6.5 4h7.2L18.5 8.7V20h-12V4z" />
-        <path d="M13.5 4v5h5" />
-        <path d="M9.3 13h5.4" /><path d="M9.3 16h5.4" />
-      </g>
-    </g>
-  </svg>
-
-  <!-- mobile system decor -->
-  <svg class="hero-decor decor decor-mobile" viewBox="0 0 390 760" preserveAspectRatio="xMidYMin slice" aria-hidden="true" focusable="false">
-    <path class="trace t-pink" d="M 0 64 H 230" />
-    <path class="trace t-pink" d="M 254 64 H 306 Q 322 64 322 80 V 116" />
-    <circle class="ball b-pink" cx="242" cy="64" r="6" />
-    <g class="chip chip-pink chip-s" transform="translate(298,120)">
-      <rect class="chip-bg" width="48" height="48" rx="13" />
-      <g class="chip-icon" transform="translate(12,12)">
-        <path d="M4.5 10.5v3.6a1 1 0 0 0 1 1h2.3l4.4 4.2V5.3L7.8 9.5H5.5a1 1 0 0 0-1 1z" />
-        <path d="M15.8 9.2a4.3 4.3 0 0 1 0 6.1" />
-      </g>
-    </g>
-    <path class="trace t-blue" d="M 372 452 V 560" />
-    <circle class="ball b-blue" cx="372" cy="440" r="6" />
-    <path class="trace t-green" d="M 0 745 H 84" />
-    <circle class="ball b-green" cx="96" cy="745" r="6" />
-  </svg>
+  <!-- floating system chips: anchors for the runtime circuit layer -->
+  <div class="chip chip-blue" id="chip-user" data-float aria-hidden="true">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="8.2" r="3.6"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg>
+  </div>
+  <div class="chip chip-pink" id="chip-mega" data-float aria-hidden="true">
+    <svg viewBox="0 0 24 24"><path d="M4.5 10.5v3.6a1 1 0 0 0 1 1h2.3l4.4 4.2V5.3L7.8 9.5H5.5a1 1 0 0 0-1 1z"/><path d="M15.8 9.2a4.3 4.3 0 0 1 0 6.1"/><path d="M18.4 6.8a7.6 7.6 0 0 1 0 10.9"/></svg>
+  </div>
+  <div class="chip chip-green" id="chip-folder" data-float aria-hidden="true">
+    <svg viewBox="0 0 24 24"><path d="M3.5 8a2 2 0 0 1 2-2h4.2l2 2.2h7.3a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H5.5a2 2 0 0 1-2-2V8z"/></svg>
+  </div>
+  <div class="chip chip-orange" id="chip-chart" data-float aria-hidden="true">
+    <svg viewBox="0 0 24 24"><path d="M5.5 19.5v-5.4"/><path d="M10.3 19.5V7.5"/><path d="M15 19.5v-8.4"/><path d="M19.7 19.5V11"/></svg>
+  </div>
+  <div class="chip chip-purple" id="chip-doc" data-float aria-hidden="true">
+    <svg viewBox="0 0 24 24"><path d="M6.5 4h7.2L18.5 8.7V20h-12V4z"/><path d="M13.5 4v5h5"/><path d="M9.3 13h5.4"/><path d="M9.3 16h5.4"/></svg>
+  </div>
 
   <div class="wrap hero-in">
     <h1 class="hero-h1 split-lines" id="hero-h1">We build the <span class="ghost">system</span> your<br class="br-d" /> <span class="ghost">business</span> actually runs on.</h1>
@@ -166,8 +90,9 @@
 <!-- ============ STATS ============ -->
 <section class="stats" aria-label="Track record">
   <div class="wrap">
-    <div class="stats-panel" data-reveal>
+    <div class="stats-panel" id="stats-panel" data-reveal>
       <span class="edge-dot ed-blue" aria-hidden="true"></span>
+      <span class="edge-dot ed-green" aria-hidden="true"></span>
       <span class="edge-dot ed-orange" aria-hidden="true"></span>
       <span class="edge-dot ed-purple" aria-hidden="true"></span>
 
@@ -196,119 +121,125 @@
       </div>
     </div>
   </div>
-  <!-- spine: out of the stats card, down into the next section -->
-  <div class="spine" aria-hidden="true">
-    <svg viewBox="0 0 2 140" preserveAspectRatio="none"><path class="trace t-purple spine-path" d="M 1 0 V 140" /></svg>
-  </div>
 </section>
 
 <!-- ============ 01 RECOGNITION ============ -->
-<section class="recog band" id="recognition">
+<section class="recog" id="recognition">
+  <span class="ghost-no" aria-hidden="true">01</span>
   <div class="wrap recog-grid">
-    <div class="recog-head" data-reveal>
-      <p class="kicker"><span class="dot dot-pink" aria-hidden="true"></span>01 · Here's the thing</p>
+    <div class="recog-head">
+      <p class="kicker" data-reveal><span class="dot dot-pink" id="kd-recog" aria-hidden="true"></span>01 · Here's the thing</p>
       <h2 class="split-lines">Every growing business ends up here eventually.</h2>
     </div>
-    <div class="recog-body" data-reveal-group>
-      <p>The CRM was fine when the process was simple. Then the team grew. The clients asked for more updates. The spreadsheet picked up three new tabs. The admin person became the only one who knows where anything is. Someone bought another bit of software to patch the gap.</p>
-      <p>It's not a mistake.</p>
-      <p class="turn">It's just what happens when the business grows faster than the <b>systems holding it up.</b></p>
+    <div class="recog-body">
+      <p data-words>The CRM was fine when the process was simple. Then the team grew. The clients asked for more updates. The spreadsheet picked up three new tabs. The admin person became the only one who knows where anything is. Someone bought another bit of software to patch the gap.</p>
+      <p data-words>It's not a mistake.</p>
+      <p class="turn" id="recog-turn" data-words>It's just what happens when the business grows faster than the <b>systems holding it up.</b></p>
     </div>
   </div>
 </section>
 
 <!-- ============ 02 SERVICES ============ -->
 <section class="services" id="what">
-  <div class="wrap">
-    <div class="svc-head" data-reveal>
-      <p class="kicker"><span class="dot dot-blue" aria-hidden="true"></span>02 · What we build</p>
-      <h2 class="split-lines">Nobody's built the software your business actually needs. So we do.</h2>
-      <p class="lede">CRM, portals, dashboards, integrations and internal tools. Not as separate toys. As one working system.</p>
-    </div>
+  <span class="ghost-no gn-right" aria-hidden="true">02</span>
+  <div class="wrap svc-head" data-reveal>
+    <p class="kicker"><span class="dot dot-blue" id="kd-what" aria-hidden="true"></span>02 · What we build</p>
+    <h2 class="split-lines">Nobody's built the software your business actually needs. So we do.</h2>
+    <p class="lede">CRM, portals, dashboards, integrations and internal tools. Not as separate toys. As one working system.</p>
+    <p class="svc-hint" aria-hidden="true"><span class="hint-dot"></span>Scroll — the system assembles itself</p>
+  </div>
 
-    <div class="svc-grid" data-reveal-grid>
-      <article class="svc" style="--c:var(--blue);--c-soft:var(--blue-soft)">
-        <div class="svc-top">
-          <span class="svc-chip" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.6"/><circle cx="12" cy="4.4" r="1.7"/><circle cx="19.6" cy="12" r="1.7"/><circle cx="12" cy="19.6" r="1.7"/><circle cx="4.4" cy="12" r="1.7"/><path d="M12 6.1v3.3M14.6 12h3.3M12 14.6v3.3M6.1 12h3.3"/></svg>
-          </span>
-          <span class="svc-ix">01</span>
-        </div>
-        <h3>CRM systems</h3>
-        <p class="svc-lead">Stop asking where things are.</p>
-        <p class="svc-txt">Every enquiry, job, order, client, supplier and document in one place, so the whole picture stops living in one person's head.</p>
-      </article>
+  <div class="svc-pin" id="svc-pin">
+    <div class="svc-stage">
+      <span class="svc-cursor" aria-hidden="true"></span>
+      <div class="svc-track" id="svc-track">
+        <span class="svc-rail" aria-hidden="true"></span>
 
-      <article class="svc" style="--c:var(--green);--c-soft:var(--green-soft)">
-        <div class="svc-top">
-          <span class="svc-chip" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="8.2" r="3.6"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg>
-          </span>
-          <span class="svc-ix">02</span>
-        </div>
-        <h3>Client portals</h3>
-        <p class="svc-lead">Clients update themselves.</p>
-        <p class="svc-txt">They upload files, submit what you need and check progress on their own, instead of asking your team for the same thing every three days.</p>
-      </article>
+        <article class="svc" style="--c:var(--blue);--c-soft:var(--blue-soft)">
+          <div class="svc-top">
+            <span class="svc-chip" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.6"/><circle cx="12" cy="4.4" r="1.7"/><circle cx="19.6" cy="12" r="1.7"/><circle cx="12" cy="19.6" r="1.7"/><circle cx="4.4" cy="12" r="1.7"/><path d="M12 6.1v3.3M14.6 12h3.3M12 14.6v3.3M6.1 12h3.3"/></svg>
+            </span>
+            <span class="svc-ix">01</span>
+          </div>
+          <h3>CRM systems</h3>
+          <p class="svc-lead">Stop asking where things are.</p>
+          <p class="svc-txt">Every enquiry, job, order, client, supplier and document in one place, so the whole picture stops living in one person's head.</p>
+        </article>
 
-      <article class="svc" style="--c:var(--orange);--c-soft:var(--orange-soft)">
-        <div class="svc-top">
-          <span class="svc-chip" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><path d="M4.5 7.3h15"/><path d="M4.5 12h15"/><path d="M4.5 16.7h15"/><circle cx="9.2" cy="7.3" r="2" class="knob"/><circle cx="15.2" cy="12" r="2" class="knob"/><circle cx="8" cy="16.7" r="2" class="knob"/></svg>
-          </span>
-          <span class="svc-ix">03</span>
-        </div>
-        <h3>Internal tools</h3>
-        <p class="svc-lead">The workarounds get a proper home.</p>
-        <p class="svc-txt">For the parts of your operation that never fit inside HubSpot, Monday or Airtable, however much everyone pretends they do.</p>
-      </article>
+        <article class="svc" style="--c:var(--green);--c-soft:var(--green-soft)">
+          <div class="svc-top">
+            <span class="svc-chip" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="8.2" r="3.6"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg>
+            </span>
+            <span class="svc-ix">02</span>
+          </div>
+          <h3>Client portals</h3>
+          <p class="svc-lead">Clients update themselves.</p>
+          <p class="svc-txt">They upload files, submit what you need and check progress on their own, instead of asking your team for the same thing every three days.</p>
+        </article>
 
-      <article class="svc" style="--c:var(--purple);--c-soft:var(--purple-soft)">
-        <div class="svc-top">
-          <span class="svc-chip" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><path d="M13.2 3.4 5.6 13.3h4.9l-.7 7.3 7.6-9.9h-4.9l.7-7.3z"/></svg>
-          </span>
-          <span class="svc-ix">04</span>
-        </div>
-        <h3>Automations and integrations</h3>
-        <p class="svc-lead">The same thing stops getting typed twice.</p>
-        <p class="svc-txt">We connect the tools you already use, so moving data from one screen to another stops being somebody's job.</p>
-      </article>
+        <article class="svc" style="--c:var(--orange);--c-soft:var(--orange-soft)">
+          <div class="svc-top">
+            <span class="svc-chip" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M4.5 7.3h15"/><path d="M4.5 12h15"/><path d="M4.5 16.7h15"/><circle cx="9.2" cy="7.3" r="2" class="knob"/><circle cx="15.2" cy="12" r="2" class="knob"/><circle cx="8" cy="16.7" r="2" class="knob"/></svg>
+            </span>
+            <span class="svc-ix">03</span>
+          </div>
+          <h3>Internal tools</h3>
+          <p class="svc-lead">The workarounds get a proper home.</p>
+          <p class="svc-txt">For the parts of your operation that never fit inside HubSpot, Monday or Airtable, however much everyone pretends they do.</p>
+        </article>
 
-      <article class="svc" style="--c:var(--pink);--c-soft:var(--pink-soft)">
-        <div class="svc-top">
-          <span class="svc-chip" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><path d="M5.5 19.5v-5.4"/><path d="M10.3 19.5V7.5"/><path d="M15 19.5v-8.4"/><path d="M19.7 19.5V11"/></svg>
-          </span>
-          <span class="svc-ix">05</span>
-        </div>
-        <h3>Dashboards and reporting</h3>
-        <p class="svc-lead">See what's happening without calling a meeting.</p>
-        <p class="svc-txt">What's moving, what's stuck and who's waiting, on one screen, before anyone has to ask.</p>
-      </article>
+        <article class="svc" style="--c:var(--purple);--c-soft:var(--purple-soft)">
+          <div class="svc-top">
+            <span class="svc-chip" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M13.2 3.4 5.6 13.3h4.9l-.7 7.3 7.6-9.9h-4.9l.7-7.3z"/></svg>
+            </span>
+            <span class="svc-ix">04</span>
+          </div>
+          <h3>Automations and integrations</h3>
+          <p class="svc-lead">The same thing stops getting typed twice.</p>
+          <p class="svc-txt">We connect the tools you already use, so moving data from one screen to another stops being somebody's job.</p>
+        </article>
 
-      <article class="svc" style="--c:var(--teal);--c-soft:var(--teal-soft)">
-        <div class="svc-top">
-          <span class="svc-chip" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><path d="M4.6 9.2a8 8 0 0 1 13.5-2.7l2.3 2.5"/><path d="M20.4 4.6V9h-4.4"/><path d="M19.4 14.8a8 8 0 0 1-13.5 2.7l-2.3-2.5"/><path d="M3.6 19.4V15H8"/></svg>
-          </span>
-          <span class="svc-ix">06</span>
-        </div>
-        <h3>Ongoing support</h3>
-        <p class="svc-lead">The system changes when you do.</p>
-        <p class="svc-txt">Your business won't look the same in a year. The software running it shouldn't either, long after launch day.</p>
-      </article>
+        <article class="svc" style="--c:var(--pink);--c-soft:var(--pink-soft)">
+          <div class="svc-top">
+            <span class="svc-chip" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M5.5 19.5v-5.4"/><path d="M10.3 19.5V7.5"/><path d="M15 19.5v-8.4"/><path d="M19.7 19.5V11"/></svg>
+            </span>
+            <span class="svc-ix">05</span>
+          </div>
+          <h3>Dashboards and reporting</h3>
+          <p class="svc-lead">See what's happening without calling a meeting.</p>
+          <p class="svc-txt">What's moving, what's stuck and who's waiting, on one screen, before anyone has to ask.</p>
+        </article>
+
+        <article class="svc" style="--c:var(--teal);--c-soft:var(--teal-soft)">
+          <div class="svc-top">
+            <span class="svc-chip" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M4.6 9.2a8 8 0 0 1 13.5-2.7l2.3 2.5"/><path d="M20.4 4.6V9h-4.4"/><path d="M19.4 14.8a8 8 0 0 1-13.5 2.7l-2.3-2.5"/><path d="M3.6 19.4V15H8"/></svg>
+            </span>
+            <span class="svc-ix">06</span>
+          </div>
+          <h3>Ongoing support</h3>
+          <p class="svc-lead">The system changes when you do.</p>
+          <p class="svc-txt">Your business won't look the same in a year. The software running it shouldn't either, long after launch day.</p>
+        </article>
+      </div>
     </div>
   </div>
 </section>
 
 <!-- ============ 03 PROOF ============ -->
 <section class="proof" id="proof">
+  <span class="ghost-no" aria-hidden="true">03</span>
   <div class="wrap">
     <h2 class="sr-only">Proof</h2>
-    <p class="kicker" data-reveal><span class="dot dot-green" aria-hidden="true"></span>03 · Proof</p>
-    <figure class="proof-card" data-reveal>
-      <blockquote class="situation">A childcare operation had a team forever chasing each other for updates in a group chat. We built them a workflow that means they look at the board instead.</blockquote>
+    <p class="kicker" data-reveal><span class="dot dot-green" id="kd-proof" aria-hidden="true"></span>03 · Proof</p>
+    <figure class="proof-card" id="proof-card" data-reveal>
+      <span class="edge-dot pd-green" aria-hidden="true"></span>
+      <blockquote class="situation" data-words>A childcare operation had a team forever chasing each other for updates in a group chat. We built them a workflow that means they look at the board instead.</blockquote>
       <figcaption class="client">
         <span class="client-name">Fiorino</span>
         <span class="client-role">Childcare operations</span>
@@ -319,86 +250,95 @@
 </section>
 
 <!-- ============ 04 REASSURANCE ============ -->
-<section class="reassure band">
+<section class="reassure">
+  <span class="ghost-no gn-right" aria-hidden="true">04</span>
   <div class="wrap reassure-in">
     <div data-reveal>
-      <p class="kicker"><span class="dot dot-orange" aria-hidden="true"></span>04 · Custom vs off-the-shelf</p>
+      <p class="kicker"><span class="dot dot-orange" id="kd-reassure" aria-hidden="true"></span>04 · Custom vs off-the-shelf</p>
       <h2 class="split-lines">Not sure custom is the answer?</h2>
     </div>
-    <div class="reassure-body" data-reveal-group>
-      <p class="strong-line">Sometimes it isn't. If off-the-shelf does the job, keep it, and we'll say so on the call.</p>
-      <p>Custom earns its place when the standard tools keep forcing workarounds. When the process is too specific to squeeze into someone else's template. When growing the business just means growing the admin.</p>
-      <p>And you don't need to arrive with a spec. You know the pain, not the build. Untangling it into something simple is the job, not your homework.</p>
-      <p class="close">The point was never a clever system with a login screen. It's a business that's <b>easier to run than it was last quarter.</b></p>
+    <div class="reassure-body">
+      <p class="strong-line" data-words>Sometimes it isn't. If off-the-shelf does the job, keep it, and we'll say so on the call.</p>
+      <p data-words>Custom earns its place when the standard tools keep forcing workarounds. When the process is too specific to squeeze into someone else's template. When growing the business just means growing the admin.</p>
+      <p data-words>And you don't need to arrive with a spec. You know the pain, not the build. Untangling it into something simple is the job, not your homework.</p>
+      <p class="close" id="reassure-close" data-words>The point was never a clever system with a login screen. It's a business that's <b>easier to run than it was last quarter.</b></p>
     </div>
   </div>
 </section>
 
-<!-- ============ HOW WE WORK (dark) ============ -->
+<!-- ============ HOW WE WORK (dark panel) ============ -->
 <section class="how" id="how">
-  <svg class="how-decor" viewBox="0 0 1440 200" preserveAspectRatio="xMidYMin slice" aria-hidden="true" focusable="false">
-    <path class="trace t-blue" d="M 1140 0 V 60 Q 1140 76 1124 76 H 980" />
-    <circle class="ball b-blue" cx="966" cy="76" r="6" />
-    <path class="trace t-green" d="M 220 200 V 120 Q 220 104 236 104 H 340" />
-  </svg>
-  <div class="wrap">
-    <div data-reveal>
-      <p class="kicker kicker-light"><span class="dot dot-blue" aria-hidden="true"></span>How we work</p>
-      <h2 class="split-lines">Come with the version you've got.</h2>
-      <p class="lede lede-light">The notes. The spreadsheet. You don't need to tidy it up before we see it. That's part of the job.</p>
-    </div>
+  <div class="how-panel" id="how-panel">
+    <span class="panel-dot pn-top" aria-hidden="true"></span>
+    <span class="panel-dot pn-bottom" aria-hidden="true"></span>
+    <svg class="how-decor" viewBox="0 0 1440 200" preserveAspectRatio="xMidYMin slice" aria-hidden="true" focusable="false">
+      <path class="trace t-lightblue" d="M 1140 0 V 60 Q 1140 76 1124 76 H 980" />
+      <circle class="ball b-lightblue" cx="966" cy="76" r="6" />
+      <path class="trace t-green" d="M 220 200 V 120 Q 220 104 236 104 H 340" />
+    </svg>
+    <div class="wrap">
+      <div data-reveal>
+        <p class="kicker kicker-light"><span class="dot dot-blue" aria-hidden="true"></span>How we work</p>
+        <h2 class="split-lines">Come with the version you've got.</h2>
+        <p class="lede lede-light">The notes. The spreadsheet. You don't need to tidy it up before we see it. That's part of the job.</p>
+      </div>
 
-    <ol class="how-list" data-reveal-group>
-      <li class="how-row">
-        <span class="how-n" aria-hidden="true">01</span>
-        <div class="how-txt">
-          <p class="how-lead">Less software, not more.</p>
-          <p class="how-kick">The fix is rarely another twelve automations. We start with how the work actually moves, then <b>build the few parts that earn their place.</b></p>
-        </div>
-      </li>
-      <li class="how-row">
-        <span class="how-n" aria-hidden="true">02</span>
-        <div class="how-txt">
-          <p class="how-lead">You talk to the person who writes the code.</p>
-          <p class="how-kick">Not a salesperson briefing an account manager briefing a developer three timezones away. <b>You explain it once.</b></p>
-        </div>
-      </li>
-      <li class="how-row">
-        <span class="how-n" aria-hidden="true">03</span>
-        <div class="how-txt">
-          <p class="how-lead">Pretty is allowed. Useful is required.</p>
-          <p class="how-kick">We'll get the system working properly <b>before anyone falls in love with the colours.</b></p>
-        </div>
-      </li>
-      <li class="how-row">
-        <span class="how-n" aria-hidden="true">04</span>
-        <div class="how-txt">
-          <p class="how-lead">When the system needs a small change, it gets one.</p>
-          <p class="how-kick">Not a form. Not a queue. <b>Not a polite email saying someone will review it next Thursday.</b></p>
-        </div>
-      </li>
-      <li class="how-row">
-        <span class="how-n" aria-hidden="true">05</span>
-        <div class="how-txt">
-          <p class="how-lead">We keep it moving after launch.</p>
-          <p class="how-kick">We don't hold you to a scope you signed six months ago. <b>When the way you work shifts, the build shifts with it.</b></p>
-        </div>
-      </li>
-    </ol>
+      <div class="how-wrap">
+        <span class="how-progress" aria-hidden="true"></span>
+        <ol class="how-list">
+          <li class="how-row">
+            <span class="how-n" aria-hidden="true">01</span>
+            <div class="how-txt">
+              <p class="how-lead">Less software, not more.</p>
+              <p class="how-kick">The fix is rarely another twelve automations. We start with how the work actually moves, then <b>build the few parts that earn their place.</b></p>
+            </div>
+          </li>
+          <li class="how-row">
+            <span class="how-n" aria-hidden="true">02</span>
+            <div class="how-txt">
+              <p class="how-lead">You talk to the person who writes the code.</p>
+              <p class="how-kick">Not a salesperson briefing an account manager briefing a developer three timezones away. <b>You explain it once.</b></p>
+            </div>
+          </li>
+          <li class="how-row">
+            <span class="how-n" aria-hidden="true">03</span>
+            <div class="how-txt">
+              <p class="how-lead">Pretty is allowed. Useful is required.</p>
+              <p class="how-kick">We'll get the system working properly <b>before anyone falls in love with the colours.</b></p>
+            </div>
+          </li>
+          <li class="how-row">
+            <span class="how-n" aria-hidden="true">04</span>
+            <div class="how-txt">
+              <p class="how-lead">When the system needs a small change, it gets one.</p>
+              <p class="how-kick">Not a form. Not a queue. <b>Not a polite email saying someone will review it next Thursday.</b></p>
+            </div>
+          </li>
+          <li class="how-row">
+            <span class="how-n" aria-hidden="true">05</span>
+            <div class="how-txt">
+              <p class="how-lead">We keep it moving after launch.</p>
+              <p class="how-kick">We don't hold you to a scope you signed six months ago. <b>When the way you work shifts, the build shifts with it.</b></p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </div>
   </div>
 </section>
 
 <!-- ============ 05 AI ============ -->
 <section class="ai" id="ai">
+  <span class="ghost-no" aria-hidden="true">05</span>
   <div class="wrap ai-grid">
     <div data-reveal>
-      <p class="kicker"><span class="dot dot-purple" aria-hidden="true"></span>05 · On AI</p>
+      <p class="kicker"><span class="dot dot-purple" id="kd-ai" aria-hidden="true"></span>05 · On AI</p>
       <h2 class="split-lines">We use it, we're just not going to make a song and dance about it.</h2>
       <p class="lede">Everyone's selling AI. The useful version isn't a chatbot you have to remember to ask. It's a system that watches the work and tells you what needs attention, before someone else has to point it out.</p>
       <p class="ai-close">Nothing to remember to check. It tells you first. Useful, not magic.</p>
     </div>
 
-    <div class="ask" data-reveal role="img" aria-label="Example notification panel — needs your attention: a job's been stuck a week, a client has gone quiet, a deadline's about to slip, something changed this week.">
+    <div class="ask" id="ask-panel" data-reveal role="img" aria-label="Example notification panel — needs your attention: a job's been stuck a week, a client has gone quiet, a deadline's about to slip, something changed this week.">
       <div class="ask-bar">
         <span class="ask-label"><span class="ask-ping"></span>Needs your attention</span>
         <span class="ask-count" data-count-to="4">4</span>
@@ -414,16 +354,17 @@
 </section>
 
 <!-- ============ FUNNEL / CTA ============ -->
-<section class="funnel band" id="talk">
+<section class="funnel" id="talk">
   <div class="wrap funnel-grid">
     <div data-reveal>
-      <p class="kicker"><span class="dot dot-blue" aria-hidden="true"></span>Working together</p>
+      <p class="kicker"><span class="dot dot-pink" id="kd-talk" aria-hidden="true"></span>Working together</p>
       <h2 class="funnel-h2 split-lines">Let's talk.</h2>
       <p class="lede">Start with a call, not a brief. We'll map how the work moves, then tell you what's actually worth building.</p>
       <p class="funnel-reassure">If we're not the right fit, we'll say so. That's cheaper for both of us.</p>
     </div>
 
-    <form class="form" data-reveal novalidate>
+    <form class="form" id="form-card" data-reveal novalidate>
+      <span class="edge-dot fd-pink" aria-hidden="true"></span>
       <div class="field">
         <label for="f-name">Your name</label>
         <input id="f-name" name="name" type="text" autocomplete="name" placeholder="Jordan Avery" required />
@@ -454,7 +395,7 @@
 <!-- ============ LOGOS ============ -->
 <section class="logos" aria-label="The tools we plug into">
   <div class="wrap">
-    <p class="logos-eyebrow">The tools we plug into</p>
+    <p class="logos-eyebrow" id="logos-eyebrow">The tools we plug into</p>
   </div>
   <div class="marquee" data-marquee>
     <div class="marquee-track">
